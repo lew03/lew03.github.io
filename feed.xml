@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.4.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2025-05-19T13:55:58+01:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Lew03 CTF Writeups</title><subtitle>Documentation for CTF writeups</subtitle><entry><title type="html">W1seGuy Write up</title><link href="http://localhost:4000/W1seGuy-Write-Up.html" rel="alternate" type="text/html" title="W1seGuy Write up" /><published>2025-05-19T13:23:49+01:00</published><updated>2025-05-19T13:23:49+01:00</updated><id>http://localhost:4000/W1seGuy-Write-Up</id><content type="html" xml:base="http://localhost:4000/W1seGuy-Write-Up.html"><![CDATA[<p>W1seGuy is a room which explores XOR cryptography. Using a TCP server to serve an encrypted hexadecimal string, we must utilise both the source code and some light programming knowledge to obtain both the key and plaintext data.</p>
+
+<h1 id="what-is-xor-cryptography">What is XOR cryptography?</h1>
+
+<p>Before we crack the room, it’s best we understand what XOR encryption is and how it works.</p>
+
+<p>In short, XOR cryptography uses the bitwise XOR logical operation to encrypt data. It is not really used in todays cryptography standards, but it serves as a low-level demonstration of how cryptography works.</p>
+
+<p>Weaknesses of this encryption method is that the same key is used for both the encryption and decryption. It also loops through the key if the plaintext is longer, making it easy to find repetitions as we will see later.</p>
+
+<p>If the key length is the same as the plaintext however, and truly random, XOR cipher is mathematically impossible to break. Despite this, it’s very rarely used as transferring a key the same length to another person has it’s own practically issues.</p>
+
+<p><strong>Example</strong></p>
+
+<p>Let’s say we want to encrypt the message ‘Test’ , we first must select an encryption key to use. In this example, we will use the key ‘Pass’ . The plaintext will be ‘XORed’ (⊕) with the key, converting the word ‘Test’ into ciphertext</p>
+
+<p>We need to represent each character of both the plaintext and the key as ASCII which will look like this:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Plaintext</th>
+      <th>ASCII</th>
+      <th>Binary</th>
+      <th> </th>
+      <th>Key</th>
+      <th>ASCII</th>
+      <th>Binary</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T</td>
+      <td>84</td>
+      <td>01010100</td>
+      <td> </td>
+      <td>P</td>
+      <td>80</td>
+      <td>01010000</td>
+    </tr>
+    <tr>
+      <td>e</td>
+      <td>101</td>
+      <td>01100101</td>
+      <td> </td>
+      <td>a</td>
+      <td>97</td>
+      <td>01100001</td>
+    </tr>
+    <tr>
+      <td>s</td>
+      <td>115</td>
+      <td>01110011</td>
+      <td> </td>
+      <td>s</td>
+      <td>115</td>
+      <td>01110011</td>
+    </tr>
+    <tr>
+      <td>t</td>
+      <td>116</td>
+      <td>01110100</td>
+      <td> </td>
+      <td>s</td>
+      <td>115</td>
+      <td>01110011</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>Now, we need to XOR each byte and convert them into Binary. So we would T ⊕ P , e ⊕ a , s ⊕ s , and t ⊕ s .</p>
+
+<p>In this example, the key is the same length as the password, so only one iteration of the key needs to be used.</p>
+
+<p>As we will later see, the text in the CTF room is longer than the key itself. The key will be used again for each byte of the plaintext if this is the case.</p>
+
+<p>We could do this one by one, although for longer text as seen in the room and keys, this would take way too long.</p>
+
+<p>Python has a built in function to XOR characters so we can write a script to do this for us, as well as convert the output to hexadecimal</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">plaintext</span> <span class="o">=</span> <span class="s2">"Test"</span> <span class="c1"># Plaintext to encrypt</span>
+<span class="n">key</span> <span class="o">=</span> <span class="s2">"Pass"</span>  <span class="c1"># Key we will be using to encrypt</span>
+
+<span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="p">[</span><span class="ss">:len</span><span class="p">(</span><span class="n">plaintext</span><span class="p">)]</span> <span class="c1"># Ensuring the key is the same as the plaintext, this will be different in the actual code</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">plaintext</span><span class="p">)):</span> 
+    <span class="nb">p</span> <span class="o">=</span> <span class="n">ord</span><span class="p">(</span><span class="n">plaintext</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>  <span class="c1"># Using the ord() function to convert plaintext into it's Unicode code point</span>
+    <span class="n">k</span> <span class="o">=</span> <span class="n">ord</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="n">xor_result</span> <span class="o">=</span> <span class="nb">p</span> <span class="o">^</span> <span class="n">k</span>  <span class="c1"># Using the ^ function to XOR the outputs of p and k </span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">"{plaintext[i]} ^ {key[i]} = {xor_result} -&gt; </span><span class="se">\\</span><span class="s2">x{xor_result:02x}"</span><span class="p">)</span> <span class="c1"># Return the XORed result in hexidecimal format using \x</span></code></pre></figure>
+
+<p>This will then output the following:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">T</span> <span class="o">^</span> <span class="no">P</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">-&gt;</span> <span class="p">\</span><span class="n">x04</span>
+<span class="n">e</span> <span class="o">^</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">-&gt;</span> <span class="p">\</span><span class="n">x04</span>
+<span class="n">s</span> <span class="o">^</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span> <span class="o">-&gt;</span> <span class="p">\</span><span class="n">x00</span>
+<span class="n">t</span> <span class="o">^</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">7</span> <span class="o">-&gt;</span> <span class="p">\</span><span class="n">x07</span></code></pre></figure>
+
+<p>Returning a hexidecimal value of \x04\x04\x00\x07 (04-04-00-07)</p>
+
+<p><strong>So how do we decrypt this?</strong></p>
+
+<p>The nice thing about XOR operations is that they are reversable, for example</p>
+
+<p>A ⊕ B = C</p>
+
+<p>and</p>
+
+<p>C ⊕ B = A</p>
+
+<p>To decrypt 04-04-00-07 using the key ‘Pass’ , we just have to reverse the operation, using the ASCII values in the table above:</p>
+
+<p>4 ⊕ 112 = 84 ‘T’</p>
+
+<p>4 ⊕ 97 = 101 ‘e’</p>
+
+<p>0 ⊕ 115 = 115 ‘s’</p>
+
+<p>7 ⊕ 115 =   116 ‘t’</p>
+
+<p>End result = ‘Test’</p>
+
+<h1 id="accessing-the-room--recon">Accessing the room / recon</h1>
+
+<p>Now we have a rough idea of how XOR encryption works - we can now begin to crack the room.</p>
+
+<p>We are provided with an open TCP port of 1337 and the source code. Lets netcat into the room and see what it gives us:</p>
+
+<p><img src="/images/wiseguy/netcat.png" alt="screenshot" /></p>
+
+<p>Connecting to this returns the Hexadecimal string ‘6027291e07050e080b037117102403405b070e14750116561658231d0d22461b1d550246172b170a’</p>
+
+<p>Let’s also take a look at the source code found in Task 1:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">import</span> <span class="n">random</span>  
+<span class="n">import</span> <span class="n">socketserver</span>   
+<span class="n">import</span> <span class="n">socket</span><span class="p">,</span> <span class="n">os</span>  
+<span class="n">import</span> <span class="n">string</span>  
+  
+<span class="n">flag</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="s1">'flag.txt'</span><span class="p">,</span><span class="s1">'r'</span><span class="p">).</span><span class="nf">read</span><span class="p">().</span><span class="nf">strip</span><span class="p">()</span>  
+  
+<span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>  
+    <span class="n">enc</span> <span class="o">=</span> <span class="n">message</span><span class="p">.</span><span class="nf">encode</span><span class="p">()</span>  
+    <span class="n">server</span><span class="p">.</span><span class="nf">send</span><span class="p">(</span><span class="n">enc</span><span class="p">)</span>  
+  
+<span class="k">def</span> <span class="nf">setup</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>  
+    <span class="n">flag</span> <span class="o">=</span> <span class="s1">'THM{thisisafakeflag}'</span>   
+<span class="n">xored</span> <span class="o">=</span> <span class="s2">""</span>  
+  
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">len</span><span class="p">(</span><span class="n">flag</span><span class="p">)):</span>  
+        <span class="n">xored</span> <span class="o">+=</span> <span class="n">chr</span><span class="p">(</span><span class="n">ord</span><span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">^</span> <span class="n">ord</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span><span class="o">%</span><span class="n">len</span><span class="p">(</span><span class="n">key</span><span class="p">)]))</span>  
+  
+    <span class="n">hex_encoded</span> <span class="o">=</span> <span class="n">xored</span><span class="p">.</span><span class="nf">encode</span><span class="p">().</span><span class="nf">hex</span><span class="p">()</span>  
+    <span class="k">return</span> <span class="n">hex_encoded</span>  
+  
+<span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="n">server</span><span class="p">):</span>  
+    <span class="n">res</span> <span class="o">=</span> <span class="s1">''</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">random</span><span class="p">.</span><span class="nf">choices</span><span class="p">(</span><span class="n">string</span><span class="p">.</span><span class="nf">ascii_letters</span> <span class="o">+</span> <span class="n">string</span><span class="p">.</span><span class="nf">digits</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">5</span><span class="p">))</span>  
+    <span class="n">key</span> <span class="o">=</span> <span class="n">str</span><span class="p">(</span><span class="n">res</span><span class="p">)</span>  
+    <span class="n">hex_encoded</span> <span class="o">=</span> <span class="n">setup</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>  
+    <span class="n">send_message</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="s2">"This XOR encoded text has flag 1: "</span> <span class="o">+</span> <span class="n">hex_encoded</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>  
+      
+    <span class="n">send_message</span><span class="p">(</span><span class="n">server</span><span class="p">,</span><span class="s2">"What is the encryption key? "</span><span class="p">)</span>  
+    <span class="n">key_answer</span> <span class="o">=</span> <span class="n">server</span><span class="p">.</span><span class="nf">recv</span><span class="p">(</span><span class="mi">4096</span><span class="p">).</span><span class="nf">decode</span><span class="p">().</span><span class="nf">strip</span><span class="p">()</span>  
+  
+    <span class="ss">try:  
+        </span><span class="k">if</span> <span class="n">key_answer</span> <span class="o">==</span> <span class="ss">key:  
+            </span><span class="n">send_message</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="s2">"Congrats! That is the correct key! Here is flag 2: "</span> <span class="o">+</span> <span class="n">flag</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>  
+            <span class="n">server</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  
+        <span class="ss">else:  
+            </span><span class="n">send_message</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="s1">'Close but no cigar'</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>  
+            <span class="n">server</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  
+    <span class="ss">except:  
+        </span><span class="n">send_message</span><span class="p">(</span><span class="n">server</span><span class="p">,</span> <span class="s2">"Something went wrong. Please try again. :)</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>  
+        <span class="n">server</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  
+  
+<span class="k">class</span> <span class="nc">RequestHandler</span><span class="p">(</span><span class="n">socketserver</span><span class="o">.</span><span class="no">BaseRequestHandler</span><span class="p">):</span>  
+    <span class="k">def</span> <span class="nf">handle</span><span class="p">(</span><span class="nb">self</span><span class="p">):</span>  
+        <span class="n">start</span><span class="p">(</span><span class="nb">self</span><span class="p">.</span><span class="nf">request</span><span class="p">)</span>  
+  
+<span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="s1">'__main__'</span><span class="p">:</span>  
+    <span class="n">socketserver</span><span class="o">.</span><span class="no">ThreadingTCPServer</span><span class="p">.</span><span class="nf">allow_reuse_address</span> <span class="o">=</span> <span class="no">True</span>  
+    <span class="n">server</span> <span class="o">=</span> <span class="n">socketserver</span><span class="o">.</span><span class="no">ThreadingTCPServer</span><span class="p">((</span><span class="s1">'0.0.0.0'</span><span class="p">,</span> <span class="mi">1337</span><span class="p">),</span> <span class="no">RequestHandler</span><span class="p">)</span>  
+    <span class="n">server</span><span class="p">.</span><span class="nf">serve_forever</span><span class="p">()</span></code></pre></figure>
+
+<p>The first thing to note is that the key length is stated here, being 5 (k=5).</p>
+
+<p>We also know, this being a CTF on TryHackMe, that the flag must contain THM{ and end with } . This would be exponentially more difficult if we did not have a general idea of what the plaintext contains.</p>
+
+<p>Because of this, we can narrow down the keys in our brute force to those that only return values that contain this text. This will help later as brute forcing all possible keys would take a long time.</p>
+
+<p>We can also see that the XOR cipher loops through each character of the flag:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="p">(</span><span class="n">ord</span><span class="p">(</span><span class="n">key</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="n">len</span><span class="p">(</span><span class="n">key</span><span class="p">)]))</span> <span class="c1"># Takes the ASCII value of each key character , cycling through it</span></code></pre></figure>
+
+<p>This is really all we need to know from the source code in order to start building our decoder.</p>
+
+<h1 id="building-the-decoder-and-getting-the-flags">Building the decoder and getting the flags</h1>
+
+<p>First , lets import string and define a few variables. We need to import the string module so we can use string.printable later on to try all possible printable characters:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">import</span> <span class="n">string</span>
+
+<span class="n">encrypted</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"6027291e07050e080b037117102403405b070e14750116561658231d0d22461b1d550246172b170a"</span><span class="p">)</span> <span class="c1"># The encrypted hexidecmal given to us when we nc'd into the room</span>
+
+<span class="n">ciphertext</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">.</span><span class="nf">fromhex</span><span class="p">(</span><span class="n">encrypted</span><span class="p">)</span> <span class="c1"># Converts the encrypted hexadecimal text into bytes for XOR decryption</span>
+
+<span class="n">header</span> <span class="o">=</span> <span class="n">b</span><span class="s2">"THM{"</span> <span class="c1"># Defining the start of the plaintext, using the b function to convert to bytes</span>
+<span class="n">footer</span> <span class="o">=</span> <span class="n">b</span><span class="s2">"}"</span> <span class="c1"># Defining the end of the plaintext, using the b function again to convert to bytes</span></code></pre></figure>
+
+<p>Now, we should create a key byte array to hold the bytes of the XOR key. We know this is 5, and for now, we will define each element as ‘None’</p>
+
+<p>After that, we’ll XOR the corresponding cypher text with the header and footerbytes</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">key_bytes</span> <span class="o">=</span> <span class="p">[</span><span class="no">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span>  <span class="c1"># Creates an array with 5  'None' values</span>
+<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">header</span><span class="p">)):</span>  
+    <span class="n">key_bytes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ciphertext</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^</span> <span class="n">header</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="c1"># XORs the Ciphertext with the header bytes</span>
+
+<span class="n">footer_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">5</span>  
+<span class="n">expected_footer_xor</span> <span class="o">=</span> <span class="n">ciphertext</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">^</span> <span class="n">footer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># XOR the last byte of ciphertext with footer byte to find the expected key byte for that position.</span></code></pre></figure>
+
+<p>Next, we’ll use the string.printable function to generate a list of all printable ASCII characters that we can use to brute force. We’ll save this to a variable, in this case I’ll call it list, and we’ll assign this to the array we made earlier.</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">list</span> <span class="o">=</span> <span class="n">string</span><span class="p">.</span><span class="nf">printable</span><span class="p">.</span><span class="nf">strip</span><span class="p">()</span>  <span class="c1"># Creates a variable called list containing all printable ASCII values</span>
+<span class="k">for</span> <span class="n">ch</span> <span class="k">in</span> <span class="ss">list:  
+    </span><span class="n">key_bytes</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">ord</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span> <span class="c1"># Assigns the ASCII value to the last byte in the array</span></code></pre></figure>
+
+<p>So now we have a list of printable ASCII values (list) , and a last byte to compare it to being expected_footer_xor. Remember, we’re only looking for keys that end in ‘}’ due to the nature of flags on TryHackMe’s CTFs, so we just need to write a function to check if the list matches the expected_footerxor:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="k">if</span> <span class="n">key_bytes</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">!=</span> <span class="ss">expected_footer_xor:  
+    </span><span class="n">continue</span>  <span class="c1"># Skip this list if it doesn't match, though in this case it won't be needed</span></code></pre></figure>
+
+<p>Lets now create a full key variable that constructs the decryption key, we’ll need to repeat the key for the length of the ciphertext:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">full_key</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">(</span><span class="n">key_bytes</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="mi">5</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)))</span> <span class="c1"># Constructs a full key which is repeated throughout the length of the ciphertext</span></code></pre></figure>
+
+<p>Finally, we now just need to decrypt the cyphertext using the key we’ve just generated, and check to see if the text contains the footer, in this case ‘}’ . We will define the key as plaintext in this example:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">plaintext</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">(</span><span class="n">c</span> <span class="o">^</span> <span class="n">k</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">k</span> <span class="k">in</span> <span class="n">zip</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">,</span> <span class="n">full_key</span><span class="p">))</span> <span class="c1"># Defines and XORs c and k using the zip function to pair both the ciphertext and full_key values</span>
+
+<span class="k">if</span> <span class="n">plaintext</span><span class="p">.</span><span class="nf">endswith</span><span class="p">(</span><span class="n">footer</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Found Key:"</span><span class="p">,</span> <span class="n">bytes</span><span class="p">(</span><span class="n">key_bytes</span><span class="p">).</span><span class="nf">decode</span><span class="p">())</span> <span class="c1"># Returns what key was used to decrypt</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Plaintext:"</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">.</span><span class="nf">decode</span><span class="p">())</span> <span class="c1"># Returns the plaintext that was decrypted by the key</span>
+    <span class="k">break</span> <span class="c1"># Ends the loop</span></code></pre></figure>
+
+<p>After running this code with the encrypted hexidecimal given to us in the beginning, it should return both the key used and plaintext values:</p>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="no">Found</span> <span class="no">Key</span><span class="p">:</span> <span class="mi">4</span><span class="n">odew</span>
+<span class="no">Plaintext</span><span class="p">:</span> <span class="no">THM</span><span class="p">{</span><span class="n">p1alntExtAtt4ckcAnr3alLyhUrty0urxOr</span><span class="p">}</span></code></pre></figure>
+
+<p>So, there’s the first flag. And to get the second one all we need to do is input the key back into the prompt that we nc’d into in the beginning. <em>My key is different to the one in the example as I had to start the box again</em></p>
+
+<p><img src="/images/wiseguy/decryption.png" alt="screenshot2" /></p>
+
+<p>And we get the final flag - THM{BrUt3_ForC1nG_XOR_cAn_B3_FuN_nO?} !!</p>
+
+<p>Thanks for reading. Took me 10x as long to create this site but I’m just using it to post future CTF write ups. I will provide the full version of the code if all you want to do is copy paste the whole thing.</p>
+
+<h1 id="full-decryption-code">Full Decryption code</h1>
+
+<figure class="highlight"><pre><code class="language-ruby" data-lang="ruby"><span class="n">import</span> <span class="n">string</span>  
+  
+<span class="n">encrypted</span> <span class="o">=</span> <span class="n">input</span><span class="p">(</span><span class="s2">"Enter the Encrypted String: "</span><span class="p">)</span>  
+<span class="n">ciphertext</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">.</span><span class="nf">fromhex</span><span class="p">(</span><span class="n">encrypted</span><span class="p">)</span>  
+  
+<span class="n">header</span> <span class="o">=</span> <span class="n">b</span><span class="s2">"THM{"</span>  
+<span class="n">footer</span> <span class="o">=</span> <span class="n">b</span><span class="s2">"}"</span>  
+  
+<span class="n">key_bytes</span> <span class="o">=</span> <span class="p">[</span><span class="no">None</span><span class="p">]</span> <span class="o">*</span> <span class="mi">5</span>  
+<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">header</span><span class="p">)):</span>  
+    <span class="n">key_bytes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">ciphertext</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">^</span> <span class="n">header</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  
+  
+<span class="n">footer_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="mi">5</span>  
+<span class="n">expected_footer_xor</span> <span class="o">=</span> <span class="n">ciphertext</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">^</span> <span class="n">footer</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  
+  
+  
+<span class="n">list</span> <span class="o">=</span> <span class="n">string</span><span class="p">.</span><span class="nf">printable</span><span class="p">.</span><span class="nf">strip</span><span class="p">()</span>  
+<span class="k">for</span> <span class="n">ch</span> <span class="k">in</span> <span class="ss">list:  
+    </span><span class="n">key_bytes</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="n">ord</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>  
+    
+    <span class="k">if</span> <span class="n">key_bytes</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">!=</span> <span class="ss">expected_footer_xor:  
+        </span><span class="n">continue</span> 
+  
+    <span class="n">full_key</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">(</span><span class="n">key_bytes</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="mi">5</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="n">range</span><span class="p">(</span><span class="n">len</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">)))</span>  
+    <span class="n">plaintext</span> <span class="o">=</span> <span class="n">bytes</span><span class="p">(</span><span class="n">c</span> <span class="o">^</span> <span class="n">k</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">k</span> <span class="k">in</span> <span class="n">zip</span><span class="p">(</span><span class="n">ciphertext</span><span class="p">,</span> <span class="n">full_key</span><span class="p">))</span>  
+  
+   
+    <span class="k">if</span> <span class="n">plaintext</span><span class="p">.</span><span class="nf">endswith</span><span class="p">(</span><span class="n">footer</span><span class="p">):</span>  
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Found Key:"</span><span class="p">,</span> <span class="n">bytes</span><span class="p">(</span><span class="n">key_bytes</span><span class="p">).</span><span class="nf">decode</span><span class="p">())</span>  
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Plaintext:"</span><span class="p">,</span> <span class="n">plaintext</span><span class="p">.</span><span class="nf">decode</span><span class="p">())</span>  
+        <span class="k">break</span>  
+<span class="ss">else:  
+    </span><span class="nb">print</span><span class="p">(</span><span class="s2">"No valid key found."</span><span class="p">)</span></code></pre></figure>]]></content><author><name></name></author><category term="TryHackMe" /><category term="Rooms" /><summary type="html"><![CDATA[W1seGuy is a room which explores XOR cryptography. Using a TCP server to serve an encrypted hexadecimal string, we must utilise both the source code and some light programming knowledge to obtain both the key and plaintext data.]]></summary></entry></feed>
