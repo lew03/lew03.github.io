@@ -7,7 +7,7 @@ categories: TryHackMe Rooms
 
 # Introduction
 
-[W1seguy](https://tryhackme.com/room/w1seguy)is a room which explores XOR cryptography. Using a TCP server to serve an encrypted hexadecimal string, we must utilise both the source code and some light programming knowledge to obtain both the key and plaintext data.
+[TryHackMe W1seGuy](https://tryhackme.com/room/w1seguy) is a room which explores XOR cryptography. Using a TCP server to serve an encrypted hexadecimal string, we must utilise both the source code and some light programming knowledge to obtain both the key and plaintext data.
 
 
 # What is XOR cryptography?
