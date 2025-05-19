@@ -5,8 +5,9 @@ date: 2025-05-19 13:23:49 +0100
 categories: TryHackMe Rooms
 ---
 
+# Introduction
 
-W1seGuy is a room which explores XOR cryptography. Using a TCP server to serve an encrypted hexadecimal string, we must utilise both the source code and some light programming knowledge to obtain both the key and plaintext data.
+[W1seGuy]([TryHackMe | W1seGuy](https://tryhackme.com/room/w1seguy)) is a room which explores XOR cryptography. Using a TCP server to serve an encrypted hexadecimal string, we must utilise both the source code and some light programming knowledge to obtain both the key and plaintext data.
 
 
 # What is XOR cryptography?
@@ -256,7 +257,7 @@ After running this code with the encrypted hexidecimal given to us in the beginn
 {%  highlight ruby %}
 
 Found Key: 4odew
-Plaintext: THM{p1alntExtAtt4ckcAnr3alLyhUrty0urxOr}
+Plaintext: THM{XXXXXXXXXXXXXXXXXXXXXXXXX}
 
 {% endhighlight%}
 
@@ -264,7 +265,7 @@ So, there's the first flag. And to get the second one all we need to do is input
 
 ![screenshot2](/images/wiseguy/decryption.png)
 
-And we get the final flag - THM{BrUt3_ForC1nG_XOR_cAn_B3_FuN_nO?} !!
+And we get the final flag!
 
 
 Thanks for reading. Took me 10x as long to create this site but I'm just using it to post future CTF write ups. I will provide the full version of the code if all you want to do is copy paste the whole thing.
