@@ -1,0 +1,31 @@
+/**
+ * Wrapper
+ */
+.wrapper {
+  max-width: -webkit-calc(800px - (30px * 2));
+  max-width: calc(1200px - 30px * 2);
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 30px;
+  padding-left: 30px;
+}
+@media screen and (max-width: 800px) {
+  .wrapper {
+    max-width: -webkit-calc(800px - (30px));
+    max-width: calc(800px - (30px));
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+}
+
+/* Normal link color */
+a {
+  color: #58a6ff; /* light blue */
+  transition: color 0.3s ease;
+}
+
+/* Hover link color */
+a:hover {
+  color: #90caf9; /* lighter blue for hover */
+  text-decoration: underline; /* optional for clarity */
+}

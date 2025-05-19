@@ -1,0 +1,196 @@
+{
+  "main": {
+    "id": "eea9614996299f6d",
+    "type": "split",
+    "children": [
+      {
+        "id": "1b167eee694439d9",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "edfe451e49151892",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_posts/2025-05-17-W1seGuy-Write-Up.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "2025-05-17-W1seGuy-Write-Up"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "9fb71b281b58f91d",
+    "type": "split",
+    "children": [
+      {
+        "id": "ea816d0e15208952",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ec232644e79d841e",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "cea7e7693bc410de",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "path:\"_posts/\" ",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "39a4248979ea91f1",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "6b41602ac3d92748",
+    "type": "split",
+    "children": [
+      {
+        "id": "2a84f5043c300107",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "b4ee3609756c4acd",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks"
+            }
+          },
+          {
+            "id": "f2b9375de3c8392a",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links"
+            }
+          },
+          {
+            "id": "8be377601ac7dc8e",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "26205ce4891f1196",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "edfe451e49151892",
+  "lastOpenFiles": [
+    "_posts/2025-05-17-W1seGuy-Write-Up 1.md",
+    "_posts/2025-05-17-W1seGuy-Write-Up.md",
+    "_site/W1seGuy-Write-Up-1.html",
+    "_site/W1seGuy-Write-Up.html",
+    "_site/feed.xml",
+    "_site/about/index.html",
+    "_site/about",
+    "_site/images/wiseguy/decryption.png",
+    "images/wiseguy/decryption.png",
+    "_posts/images/wiseguy/decryption.png.md",
+    "_posts/images/wiseguy",
+    "_posts/images",
+    "_site/images/wiseguy/decrption.png",
+    "images/wiseguy/decrption.png",
+    "images.md",
+    "images 1.md",
+    "assets/main.scss",
+    "assets/New Text Document.txt",
+    "_sass/custom.scss",
+    "_site/assets/images/netcat.png",
+    "assets/images/netcat.png",
+    "_site/images/wiseguy/netcat.png",
+    "images/wiseguy/netcat.png",
+    "_site/assets/minima-social-icons.svg",
+    "Untitled.md"
+  ]
+}
